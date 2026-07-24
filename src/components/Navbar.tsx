@@ -236,43 +236,51 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="relative z-50" ref={quickCreateRef}>
           <button
             type="button"
+            aria-expanded={showQuickCreateDropdown}
             onClick={() => setShowQuickCreateDropdown(!showQuickCreateDropdown)}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold text-xs transition-all shadow-md shadow-indigo-600/20 cursor-pointer"
+            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-white font-semibold text-xs transition-all shadow-md shadow-indigo-600/20 cursor-pointer ${
+              showQuickCreateDropdown
+                ? 'bg-indigo-500 ring-2 ring-indigo-400/50 shadow-indigo-500/30'
+                : 'bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500'
+            }`}
           >
-            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-            <span>Create</span>
+            <Plus className={`w-3.5 h-3.5 stroke-[2.5] transition-transform duration-200 ${showQuickCreateDropdown ? 'rotate-45' : ''}`} />
+            <span className="hidden sm:inline">Create</span>
           </button>
 
           {showQuickCreateDropdown && (
-            <div className="absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl p-1.5 z-50 text-xs space-y-1">
+            <div className="absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-1.5 z-50 text-xs space-y-1 animate-in fade-in zoom-in-95 duration-150">
               <button
+                type="button"
                 onClick={() => {
                   if (onQuickCreate) onQuickCreate('hackathon');
                   setShowQuickCreateDropdown(false);
                 }}
-                className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-slate-800 text-slate-200 flex items-center gap-2 cursor-pointer"
+                className="w-full text-left px-2.5 py-2 rounded-xl hover:bg-slate-800/80 text-slate-200 flex items-center gap-2 cursor-pointer transition-colors"
               >
-                <Trophy className="w-3.5 h-3.5 text-indigo-400" />
+                <Trophy className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
                 <span>New Hackathon</span>
               </button>
               <button
+                type="button"
                 onClick={() => {
                   if (onQuickCreate) onQuickCreate('task');
                   setShowQuickCreateDropdown(false);
                 }}
-                className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-slate-800 text-slate-200 flex items-center gap-2 cursor-pointer"
+                className="w-full text-left px-2.5 py-2 rounded-xl hover:bg-slate-800/80 text-slate-200 flex items-center gap-2 cursor-pointer transition-colors"
               >
-                <Kanban className="w-3.5 h-3.5 text-violet-400" />
+                <Kanban className="w-3.5 h-3.5 text-violet-400 shrink-0" />
                 <span>New Kanban Task</span>
               </button>
               <button
+                type="button"
                 onClick={() => {
                   if (onQuickCreate) onQuickCreate('document');
                   setShowQuickCreateDropdown(false);
                 }}
-                className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-slate-800 text-slate-200 flex items-center gap-2 cursor-pointer"
+                className="w-full text-left px-2.5 py-2 rounded-xl hover:bg-slate-800/80 text-slate-200 flex items-center gap-2 cursor-pointer transition-colors"
               >
-                <FolderPlus className="w-3.5 h-3.5 text-emerald-400" />
+                <FolderPlus className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                 <span>Upload Document</span>
               </button>
             </div>

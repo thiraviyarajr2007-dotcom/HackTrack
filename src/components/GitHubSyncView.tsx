@@ -21,6 +21,7 @@ import {
   Trash2
 } from 'lucide-react';
 import { GitHubCommitItem, GitHubSyncConfig, TaskItem, DailyStandupItem, KanbanStatus } from '../types';
+import { RepositoryHealthWidget } from './RepositoryHealthWidget';
 
 interface GitHubSyncViewProps {
   onSyncToKanban?: (task: TaskItem) => void;
@@ -319,6 +320,12 @@ export const GitHubSyncView: React.FC<GitHubSyncViewProps> = ({
           </button>
         </div>
       )}
+
+      {/* Repository Health Recharts Dashboard Component */}
+      <RepositoryHealthWidget
+        repoOwner={config.repoOwner}
+        repoName={config.repoName}
+      />
 
       {/* Main Grid: Repository Connection Config + Sync Summary */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">

@@ -42,6 +42,7 @@ import {
   KanbanStatus,
 } from '../types';
 import { getAccessToken, signInWithGoogle } from '../lib/firebase';
+import { RepositoryHealthWidget } from './RepositoryHealthWidget';
 
 interface DashboardViewProps {
   userName?: string;
@@ -876,6 +877,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               Add
             </button>
           </form>
+        </div>
+
+        {/* Repository Health Dashboard Component (Recharts Visualization) */}
+        <div className="lg:col-span-12">
+          <RepositoryHealthWidget
+            onNavigate={navigate}
+            repoOwner={activeHackathon?.organizer}
+            repoName={activeHackathon?.name}
+          />
         </div>
 
         {/* Row 2 Left: Team Status (col-span-3) */}
