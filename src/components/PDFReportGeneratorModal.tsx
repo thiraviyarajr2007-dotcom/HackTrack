@@ -13,6 +13,7 @@ import {
   Flag,
   CheckSquare,
   Maximize2,
+  Mail,
 } from 'lucide-react';
 import {
   DocumentItem,
@@ -22,9 +23,11 @@ import {
   TeamMember,
   TaskItem,
   DailyStandupItem,
+  NotificationItem,
 } from '../types';
 import { generateProjectPDFReport } from '../lib/pdfReportGenerator';
 import { DocumentPreviewModal } from './DocumentPreviewModal';
+import { EmailReportModal } from './EmailReportModal';
 
 interface PDFReportGeneratorModalProps {
   isOpen: boolean;
@@ -36,6 +39,7 @@ interface PDFReportGeneratorModalProps {
   tasks: TaskItem[];
   standups: DailyStandupItem[];
   onAddDocument: (doc: DocumentItem) => void;
+  onAddNotification?: (notification: NotificationItem) => void;
 }
 
 export const PDFReportGeneratorModal: React.FC<PDFReportGeneratorModalProps> = ({
@@ -48,6 +52,7 @@ export const PDFReportGeneratorModal: React.FC<PDFReportGeneratorModalProps> = (
   tasks,
   standups,
   onAddDocument,
+  onAddNotification,
 }) => {
   const [selectedHackathonId, setSelectedHackathonId] = useState<string>('all');
   const [reportTitle, setReportTitle] = useState(
@@ -68,6 +73,7 @@ export const PDFReportGeneratorModal: React.FC<PDFReportGeneratorModalProps> = (
   const [generatedDocObj, setGeneratedDocObj] = useState<any>(null);
   const [savedToDocsMsg, setSavedToDocsMsg] = useState<string | null>(null);
   const [isPreviewOverlayOpen, setIsPreviewOverlayOpen] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
 
   if (!isOpen) return null;
 
@@ -434,6 +440,20 @@ export const PDFReportGeneratorModal: React.FC<PDFReportGeneratorModalProps> = (
 
             <button
               type="button"
+              onClick={() => {
+                if (!pdfPreviewUrl) {
+                  handleGeneratePDF();
+                }
+                setIsEmailModalOpen(true);
+              }}
+              className="px-3.5 py-2 rounded-lg bg-purple-950 hover:bg-purple-900 text-purple-200 font-semibold border border-purple-700/50 flex items-center justify-center space-x-1.5 cursor-pointer text-xs"
+            >
+              <Mail className="w-3.5 h-3.5 text-purple-400" />
+              <span>Email Report to Team</span>
+            </button>
+
+            <button
+              type="button"
               onClick={handleSaveToDocumentCenter}
               className="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-purple-300 font-semibold border border-purple-500/30 flex items-center justify-center space-x-1.5 cursor-pointer text-xs"
             >
@@ -460,7 +480,20 @@ export const PDFReportGeneratorModal: React.FC<PDFReportGeneratorModalProps> = (
         pdfUrl={pdfPreviewUrl}
         title={reportTitle}
         hackathonName={filterHackathonName}
+        teamMembers={teamMembers}
         onDownload={handleDownload}
+        onAddNotification={onAddNotification}
+      />
+
+      {/* Automated Email Report Trigger Modal */}
+      <EmailReportModal
+        isOpen={isEmailModalOpen}
+        onClose={() => setIsEmailModalOpen(false)}
+        reportTitle={reportTitle}
+        hackathonName={filterHackathonName}
+        pdfUrl={pdfPreviewUrl}
+        teamMembers={teamMembers}
+        onAddNotification={onAddNotification}
       />
     </div>
   );

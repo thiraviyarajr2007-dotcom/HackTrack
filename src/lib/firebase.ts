@@ -34,18 +34,37 @@ export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({
   prompt: 'select_account',
 });
+googleProvider.addScope('https://www.googleapis.com/auth/tasks');
+googleProvider.addScope('https://www.googleapis.com/auth/tasks.readonly');
 
 export const githubProvider = new GithubAuthProvider();
 
-export const db = getFirestore(app, firebaseConfigData.firestoreDatabaseId || undefined);
+export const db = firebaseConfigData.firestoreDatabaseId
+  ? getFirestore(app, firebaseConfigData.firestoreDatabaseId)
+  : getFirestore(app);
+
+// In-memory caching for OAuth access token (never stored in localStorage)
+let cachedAccessToken: string | null = null;
+
+export async function getAccessToken(): Promise<string | null> {
+  return cachedAccessToken;
+}
+
+export function setAccessToken(token: string | null) {
+  cachedAccessToken = token;
+}
 
 export async function signInWithGoogle() {
   try {
     const result = await signInWithPopup(auth, googleProvider);
-    return { user: result.user, error: null };
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    if (credential?.accessToken) {
+      cachedAccessToken = credential.accessToken;
+    }
+    return { user: result.user, accessToken: credential?.accessToken || null, error: null };
   } catch (error: any) {
     console.error('Firebase Google Sign-In Error:', error);
-    return { user: null, error: error?.message || 'Google Sign-In failed' };
+    return { user: null, accessToken: null, error: error?.message || 'Google Sign-In failed' };
   }
 }
 
@@ -61,6 +80,7 @@ export async function signInWithGithub() {
 
 export async function logoutFirebase() {
   try {
+    cachedAccessToken = null;
     await signOut(auth);
     return { success: true };
   } catch (error: any) {

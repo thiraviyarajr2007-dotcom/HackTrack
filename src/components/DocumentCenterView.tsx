@@ -27,6 +27,7 @@ import {
   TeamMember,
   TaskItem,
   DailyStandupItem,
+  NotificationItem,
 } from '../types';
 import { PDFReportGeneratorModal } from './PDFReportGeneratorModal';
 import { DocumentPreviewModal } from './DocumentPreviewModal';
@@ -41,6 +42,7 @@ interface DocumentCenterViewProps {
   standups?: DailyStandupItem[];
   onAddDocument: (doc: DocumentItem) => void;
   onDeleteDocument: (docId: string) => void;
+  onAddNotification?: (notification: NotificationItem) => void;
 }
 
 export const DocumentCenterView: React.FC<DocumentCenterViewProps> = ({
@@ -53,6 +55,7 @@ export const DocumentCenterView: React.FC<DocumentCenterViewProps> = ({
   standups = [],
   onAddDocument,
   onDeleteDocument,
+  onAddNotification,
 }) => {
   const [filterType, setFilterType] = useState<string>('ALL');
   const [search, setSearch] = useState('');
@@ -377,6 +380,7 @@ export const DocumentCenterView: React.FC<DocumentCenterViewProps> = ({
         tasks={tasks}
         standups={standups}
         onAddDocument={onAddDocument}
+        onAddNotification={onAddNotification}
       />
 
       {/* Document Asset Preview Modal */}
@@ -387,6 +391,8 @@ export const DocumentCenterView: React.FC<DocumentCenterViewProps> = ({
         hackathonName={
           hackathons.find((h) => h.id === previewDoc?.hackathonId)?.name
         }
+        teamMembers={teamMembers}
+        onAddNotification={onAddNotification}
       />
     </div>
   );

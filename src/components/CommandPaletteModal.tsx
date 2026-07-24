@@ -18,7 +18,8 @@ import {
   Sparkles,
   X,
   ArrowRight,
-  Plus
+  Plus,
+  CheckSquare
 } from 'lucide-react';
 
 export interface CommandPaletteModalProps {
@@ -73,6 +74,13 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
       icon: Kanban,
       hotkey: '⌘3',
       action: () => onNavigate('kanban'),
+    },
+    {
+      id: 'google-tasks',
+      title: 'Go to Google Tasks Sync',
+      category: 'Views',
+      icon: CheckSquare,
+      action: () => onNavigate('google-tasks'),
     },
     {
       id: 'github-sync',

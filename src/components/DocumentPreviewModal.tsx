@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   X,
   Download,
@@ -12,8 +12,10 @@ import {
   Maximize2,
   CheckCircle2,
   ShieldCheck,
+  Mail,
 } from 'lucide-react';
-import { DocumentItem } from '../types';
+import { DocumentItem, TeamMember, NotificationItem } from '../types';
+import { EmailReportModal } from './EmailReportModal';
 
 interface DocumentPreviewModalProps {
   isOpen: boolean;
@@ -22,7 +24,9 @@ interface DocumentPreviewModalProps {
   pdfUrl?: string | null;
   title?: string;
   hackathonName?: string;
+  teamMembers?: TeamMember[];
   onDownload?: () => void;
+  onAddNotification?: (notification: NotificationItem) => void;
 }
 
 export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
@@ -32,8 +36,12 @@ export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
   pdfUrl,
   title,
   hackathonName,
+  teamMembers = [],
   onDownload,
+  onAddNotification,
 }) => {
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+
   if (!isOpen) return null;
 
   const displayTitle = title || document?.title || 'Project Report Document';
@@ -112,6 +120,15 @@ export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
 
           {/* Action buttons */}
           <div className="flex items-center space-x-2 shrink-0 ml-2">
+            <button
+              onClick={() => setIsEmailModalOpen(true)}
+              className="px-3 py-1.5 rounded-lg bg-purple-950 hover:bg-purple-900 text-purple-200 border border-purple-700/50 font-bold text-xs flex items-center space-x-1.5 transition-all cursor-pointer"
+              title="Send Automated Email to Team"
+            >
+              <Mail className="w-3.5 h-3.5 text-purple-400" />
+              <span className="hidden sm:inline">Email Team</span>
+            </button>
+
             {previewSource && previewSource !== '#' && (
               <button
                 onClick={handlePrint}
@@ -218,14 +235,34 @@ export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             External Submission PDF & Assets Preview Mode
           </span>
-          <button
-            onClick={onClose}
-            className="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer text-xs"
-          >
-            Close Preview
-          </button>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setIsEmailModalOpen(true)}
+              className="px-3 py-1.5 rounded-lg bg-purple-950 hover:bg-purple-900 text-purple-200 border border-purple-700/50 cursor-pointer text-xs font-semibold flex items-center gap-1.5"
+            >
+              <Mail className="w-3.5 h-3.5 text-purple-400" />
+              <span>Send Email Dispatch</span>
+            </button>
+            <button
+              onClick={onClose}
+              className="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer text-xs"
+            >
+              Close Preview
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Automated Email Report Trigger Modal */}
+      <EmailReportModal
+        isOpen={isEmailModalOpen}
+        onClose={() => setIsEmailModalOpen(false)}
+        reportTitle={displayTitle}
+        hackathonName={displayHackathon}
+        pdfUrl={previewSource}
+        teamMembers={teamMembers}
+        onAddNotification={onAddNotification}
+      />
     </div>
   );
 };

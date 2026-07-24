@@ -25,6 +25,7 @@ import { AchievementView } from './components/AchievementView';
 import { CalendarView } from './components/CalendarView';
 import { AnalyticsView } from './components/AnalyticsView';
 import { GitHubSyncView } from './components/GitHubSyncView';
+import { GoogleTasksView } from './components/GoogleTasksView';
 import { CommandPaletteModal } from './components/CommandPaletteModal';
 import {
   logoutFirebase,
@@ -519,6 +520,10 @@ export function App() {
     setNotifications(notifications.map((n) => ({ ...n, read: true })));
   };
 
+  const handleAddNotification = (notif: NotificationItem) => {
+    setNotifications((prev) => [notif, ...prev]);
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-purple-500 selection:text-white">
       {/* Top Navbar */}
@@ -594,6 +599,7 @@ export function App() {
                 onUpdateTaskStatus={handleUpdateTaskStatus}
                 onDeleteTask={handleDeleteTask}
                 onOpenGitHubSync={() => setCurrentView('github-sync')}
+                onOpenGoogleTasks={() => setCurrentView('google-tasks')}
               />
             )}
 
@@ -602,6 +608,13 @@ export function App() {
                 onSyncToKanban={handleAddTask}
                 onSyncToStandup={handleAddStandup}
                 existingTasks={kanbanTasks}
+              />
+            )}
+
+            {currentView === 'google-tasks' && (
+              <GoogleTasksView
+                kanbanTasks={kanbanTasks}
+                onAddKanbanTask={handleAddTask}
               />
             )}
 
@@ -656,6 +669,7 @@ export function App() {
                 standups={standups}
                 onAddDocument={handleAddDocument}
                 onDeleteDocument={handleDeleteDocument}
+                onAddNotification={handleAddNotification}
               />
             )}
 
@@ -721,7 +735,11 @@ export function App() {
             )}
 
             {currentView === 'analytics' && (
-              <AnalyticsView hackathons={hackathons} />
+              <AnalyticsView
+                hackathons={hackathons}
+                achievements={achievements}
+                expenses={expenses}
+              />
             )}
           </div>
         </main>

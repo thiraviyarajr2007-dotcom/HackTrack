@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
 import {
   Github,
   GitCommit,
@@ -16,7 +17,8 @@ import {
   MessageSquare,
   Sparkles,
   Key,
-  FolderGit2
+  FolderGit2,
+  Trash2
 } from 'lucide-react';
 import { GitHubCommitItem, GitHubSyncConfig, TaskItem, DailyStandupItem, KanbanStatus } from '../types';
 
@@ -41,10 +43,10 @@ export const GitHubSyncView: React.FC<GitHubSyncViewProps> = ({
       }
     }
     return {
-      connected: true,
-      username: 'sabankumar',
-      repoOwner: 'sabankumar',
-      repoName: 'hacktrack-app',
+      connected: false,
+      username: '',
+      repoOwner: '',
+      repoName: '',
       branch: 'main',
       autoSync: true,
       lastSyncedAt: new Date().toISOString(),
@@ -56,57 +58,13 @@ export const GitHubSyncView: React.FC<GitHubSyncViewProps> = ({
     const saved = localStorage.getItem('hacktrack_github_commits');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
       } catch (e) {
         // Fallback
       }
     }
-    return [
-      {
-        sha: 'a8f9c12e5d3b1a2c3d4e5f6a7b8c9d0e',
-        commitMessage: 'feat(auth): integrate GitHub account connection and OAuth commit auto-sync',
-        authorName: 'sabankumar',
-        authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-        date: new Date().toISOString(),
-        htmlUrl: 'https://github.com/sabankumar/hacktrack-app/commit/a8f9c12e',
-        branch: 'main',
-        syncedToKanban: true,
-        syncedToStandup: true,
-      },
-      {
-        sha: 'b7e8d01c2b3a4f5e6d7c8b9a0f1e2d3c',
-        commitMessage: 'fix(kanban): automatically parse repository commits into task cards',
-        authorName: 'sabankumar',
-        authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-        date: new Date(Date.now() - 3600000 * 2).toISOString(),
-        htmlUrl: 'https://github.com/sabankumar/hacktrack-app/commit/b7e8d01c',
-        branch: 'main',
-        syncedToKanban: true,
-        syncedToStandup: false,
-      },
-      {
-        sha: 'c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1',
-        commitMessage: 'docs(readme): generate AI project pitch deck and README badges',
-        authorName: 'team-lead',
-        authorAvatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80',
-        date: new Date(Date.now() - 3600000 * 5).toISOString(),
-        htmlUrl: 'https://github.com/sabankumar/hacktrack-app/commit/c6d7e8f9',
-        branch: 'main',
-        syncedToKanban: false,
-        syncedToStandup: false,
-      },
-      {
-        sha: 'd5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0',
-        commitMessage: 'refactor(server): optimize Gemini AI evaluation and health check endpoints',
-        authorName: 'sabankumar',
-        authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-        date: new Date(Date.now() - 3600000 * 12).toISOString(),
-        htmlUrl: 'https://github.com/sabankumar/hacktrack-app/commit/d5e6f7a8',
-        branch: 'main',
-        syncedToKanban: false,
-        syncedToStandup: false,
-      },
-    ];
+    return [];
   });
 
   const [loading, setLoading] = useState(false);

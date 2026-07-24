@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'motion/react';
 import {
   Kanban,
   Plus,
@@ -13,6 +14,8 @@ import {
   X,
   Trash2,
   Github,
+  CheckSquare,
+  Sparkles
 } from 'lucide-react';
 import { TaskItem, KanbanStatus, TeamMember } from '../types';
 
@@ -23,6 +26,7 @@ interface KanbanBoardViewProps {
   onUpdateTaskStatus: (taskId: string, newStatus: KanbanStatus) => void;
   onDeleteTask: (taskId: string) => void;
   onOpenGitHubSync?: () => void;
+  onOpenGoogleTasks?: () => void;
 }
 
 export const KanbanBoardView: React.FC<KanbanBoardViewProps> = ({
@@ -32,6 +36,7 @@ export const KanbanBoardView: React.FC<KanbanBoardViewProps> = ({
   onUpdateTaskStatus,
   onDeleteTask,
   onOpenGitHubSync,
+  onOpenGoogleTasks,
 }) => {
   const columns: KanbanStatus[] = ['To Do', 'In Progress', 'Testing', 'Submitted', 'Completed'];
 
@@ -44,8 +49,8 @@ export const KanbanBoardView: React.FC<KanbanBoardViewProps> = ({
   const [formTag, setFormTag] = useState('Frontend');
 
   const columnBg: Record<KanbanStatus, string> = {
-    'To Do': 'border-slate-800 bg-slate-900/60',
-    'In Progress': 'border-purple-500/30 bg-purple-950/20',
+    'To Do': 'border-slate-800/80 bg-slate-900/40',
+    'In Progress': 'border-indigo-500/30 bg-indigo-950/20',
     Testing: 'border-amber-500/30 bg-amber-950/20',
     Submitted: 'border-cyan-500/30 bg-cyan-950/20',
     Completed: 'border-emerald-500/30 bg-emerald-950/20',
@@ -53,7 +58,7 @@ export const KanbanBoardView: React.FC<KanbanBoardViewProps> = ({
 
   const columnTitleColor: Record<KanbanStatus, string> = {
     'To Do': 'text-slate-400',
-    'In Progress': 'text-purple-400',
+    'In Progress': 'text-indigo-400',
     Testing: 'text-amber-400',
     Submitted: 'text-cyan-400',
     Completed: 'text-emerald-400',
@@ -83,36 +88,48 @@ export const KanbanBoardView: React.FC<KanbanBoardViewProps> = ({
   };
 
   return (
-    <div className="space-y-6 pb-12">
+    <div className="space-y-6 pb-12 font-sans">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center space-x-2">
-            <Kanban className="w-5 h-5 text-purple-400" />
-            <h1 className="text-xl md:text-2xl font-black text-white">Kanban Board</h1>
+          <div className="flex items-center space-x-2.5">
+            <div className="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+              <Kanban className="w-4 h-4" />
+            </div>
+            <h1 className="text-xl md:text-2xl font-heading font-black text-white">Kanban Workflow Board</h1>
           </div>
-          <p className="text-xs text-slate-400">
-            Manage task workflow from To Do to Completed & Submitted states.
+          <p className="text-xs text-slate-400 mt-1">
+            Track and move task cards across To Do, In Progress, Testing, Submitted, and Completed columns.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto">
+        <div className="flex items-center gap-2.5 self-start sm:self-auto flex-wrap">
+          {onOpenGoogleTasks && (
+            <button
+              onClick={onOpenGoogleTasks}
+              className="px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-indigo-500/40 text-slate-200 flex items-center space-x-2 transition-all cursor-pointer shadow-sm"
+            >
+              <CheckSquare className="w-4 h-4 text-indigo-400" />
+              <span>Google Tasks OAuth</span>
+            </button>
+          )}
+
           {onOpenGitHubSync && (
             <button
               onClick={onOpenGitHubSync}
-              className="px-3.5 py-2 text-xs font-bold rounded-xl bg-[#18181b] hover:bg-[#27272a] border border-[#27272a] hover:border-purple-500/40 text-purple-300 flex items-center space-x-2 transition-all cursor-pointer shadow-sm"
+              className="px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-purple-500/40 text-slate-200 flex items-center space-x-2 transition-all cursor-pointer shadow-sm"
             >
               <Github className="w-4 h-4 text-purple-400" />
-              <span>Sync GitHub Commits</span>
+              <span>GitHub Commits</span>
             </button>
           )}
 
           <button
             onClick={() => setShowAddModal(true)}
-            className="px-4 py-2 text-xs font-bold rounded-xl bg-purple-600 hover:bg-purple-500 text-white flex items-center space-x-2 shadow-lg shadow-purple-600/20 transition-all cursor-pointer"
+            className="px-4 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white flex items-center space-x-2 shadow-lg shadow-indigo-600/25 transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            <span>New Kanban Card</span>
+            <span>New Task Card</span>
           </button>
         </div>
       </div>
@@ -125,14 +142,14 @@ export const KanbanBoardView: React.FC<KanbanBoardViewProps> = ({
           return (
             <div
               key={col}
-              className={`rounded-xl border p-3 flex flex-col min-h-[500px] ${columnBg[col]}`}
+              className={`rounded-[20px] border p-3.5 flex flex-col min-h-[520px] glass-card ${columnBg[col]}`}
             >
               {/* Column Title Header */}
-              <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
-                <span className={`text-xs font-extrabold uppercase tracking-wider ${columnTitleColor[col]}`}>
+              <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-800/80">
+                <span className={`text-xs font-heading font-bold uppercase tracking-wider ${columnTitleColor[col]}`}>
                   {col}
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-900 text-slate-300 border border-slate-800">
                   {colTasks.length}
                 </span>
               </div>
@@ -144,14 +161,15 @@ export const KanbanBoardView: React.FC<KanbanBoardViewProps> = ({
                   const currentIdx = columns.indexOf(col);
 
                   return (
-                    <div
+                    <motion.div
                       key={task.id}
-                      className="bg-slate-900 border border-slate-800 hover:border-purple-500/40 rounded-xl p-3 shadow-md space-y-2 group transition-all"
+                      whileHover={{ y: -2 }}
+                      className="bg-slate-950/80 border border-slate-800/80 hover:border-indigo-500/40 rounded-2xl p-3.5 shadow-lg space-y-2.5 group transition-all"
                     >
                       {/* Priority Tag & Delete */}
                       <div className="flex items-center justify-between">
                         <span
-                          className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${
+                          className={`text-[9px] px-2 py-0.5 rounded-full font-mono font-bold uppercase ${
                             task.priority === 'High'
                               ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
                               : task.priority === 'Medium'
@@ -173,13 +191,13 @@ export const KanbanBoardView: React.FC<KanbanBoardViewProps> = ({
 
                       {/* Card Title & Desc */}
                       <h4 className="text-xs font-bold text-slate-100 leading-snug">{task.title}</h4>
-                      <p className="text-[11px] text-slate-400 line-clamp-2">{task.description}</p>
+                      <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">{task.description}</p>
 
                       {/* Subtasks Progress */}
                       {task.subtasks.length > 0 && (
-                        <div className="text-[10px] text-slate-400 flex items-center justify-between bg-slate-950 p-1.5 rounded">
+                        <div className="text-[10px] text-slate-400 flex items-center justify-between bg-slate-900 p-2 rounded-xl border border-slate-800">
                           <span>Subtasks</span>
-                          <span className="font-bold text-purple-400">
+                          <span className="font-mono font-bold text-indigo-400">
                             {task.subtasks.filter((s) => s.done).length}/{task.subtasks.length}
                           </span>
                         </div>
@@ -192,7 +210,7 @@ export const KanbanBoardView: React.FC<KanbanBoardViewProps> = ({
                             <img
                               src={assigned.avatar}
                               alt={assigned.name}
-                              className="w-5 h-5 rounded-full object-cover border border-purple-500/30"
+                              className="w-5 h-5 rounded-full object-cover border border-slate-700"
                             />
                             <span className="text-[10px] text-slate-300 font-medium truncate max-w-[80px]">
                               {assigned.name.split(' ')[0]}
@@ -205,7 +223,7 @@ export const KanbanBoardView: React.FC<KanbanBoardViewProps> = ({
                           {currentIdx > 0 && (
                             <button
                               onClick={() => onUpdateTaskStatus(task.id, columns[currentIdx - 1])}
-                              className="p-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer"
+                              className="p-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 cursor-pointer transition-colors"
                               title={`Move to ${columns[currentIdx - 1]}`}
                             >
                               <ChevronLeft className="w-3 h-3" />
@@ -214,7 +232,7 @@ export const KanbanBoardView: React.FC<KanbanBoardViewProps> = ({
                           {currentIdx < columns.length - 1 && (
                             <button
                               onClick={() => onUpdateTaskStatus(task.id, columns[currentIdx + 1])}
-                              className="p-1 rounded bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 cursor-pointer"
+                              className="p-1 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 cursor-pointer transition-colors"
                               title={`Move to ${columns[currentIdx + 1]}`}
                             >
                               <ChevronRight className="w-3 h-3" />
@@ -222,12 +240,12 @@ export const KanbanBoardView: React.FC<KanbanBoardViewProps> = ({
                           )}
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
                   );
                 })}
 
                 {colTasks.length === 0 && (
-                  <div className="h-28 border border-dashed border-slate-800/80 rounded-xl flex items-center justify-center text-slate-600 text-xs">
+                  <div className="h-32 border border-dashed border-slate-800/80 rounded-2xl flex items-center justify-center text-slate-500 text-xs text-center p-4">
                     No cards in {col}
                   </div>
                 )}
@@ -240,53 +258,53 @@ export const KanbanBoardView: React.FC<KanbanBoardViewProps> = ({
       {/* Add Task Modal */}
       {showAddModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-150 cursor-pointer"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-150 cursor-pointer"
           onClick={() => setShowAddModal(false)}
         >
           <div
-            className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl relative cursor-default"
+            className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-6 shadow-2xl relative cursor-default space-y-4"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={() => setShowAddModal(false)}
-              className="absolute top-4 right-4 p-1 rounded-lg bg-slate-800 text-slate-400 hover:text-white cursor-pointer"
+              className="absolute top-4 right-4 p-1.5 rounded-xl bg-slate-800 text-slate-400 hover:text-white cursor-pointer"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
 
-            <h2 className="text-base font-bold text-white mb-4">Create New Kanban Task Card</h2>
+            <h2 className="text-base font-heading font-bold text-white">Create New Task Card</h2>
 
-            <form onSubmit={handleCreateTask} className="space-y-3 text-xs">
+            <form onSubmit={handleCreateTask} className="space-y-3.5 text-xs">
               <div>
-                <label className="block text-slate-400 mb-1">Task Title *</label>
+                <label className="block text-slate-400 font-medium mb-1">Task Title *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Integrate Gemini AI API"
                   value={formTitle}
                   onChange={(e) => setFormTitle(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-indigo-500"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-400 mb-1">Description</label>
+                <label className="block text-slate-400 font-medium mb-1">Description</label>
                 <textarea
                   rows={2}
                   placeholder="Details and requirements..."
                   value={formDesc}
                   onChange={(e) => setFormDesc(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-indigo-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-400 mb-1">Initial Column</label>
+                  <label className="block text-slate-400 font-medium mb-1">Initial Column</label>
                   <select
                     value={formStatus}
                     onChange={(e) => setFormStatus(e.target.value as KanbanStatus)}
-                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-200"
+                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200"
                   >
                     {columns.map((c) => (
                       <option key={c} value={c}>
@@ -297,11 +315,11 @@ export const KanbanBoardView: React.FC<KanbanBoardViewProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-slate-400 mb-1">Priority</label>
+                  <label className="block text-slate-400 font-medium mb-1">Priority</label>
                   <select
                     value={formPriority}
                     onChange={(e) => setFormPriority(e.target.value as any)}
-                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-200"
+                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200"
                   >
                     <option value="High">High</option>
                     <option value="Medium">Medium</option>
@@ -311,11 +329,11 @@ export const KanbanBoardView: React.FC<KanbanBoardViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-slate-400 mb-1">Assigned Team Member</label>
+                <label className="block text-slate-400 font-medium mb-1">Assigned Team Member</label>
                 <select
                   value={formMember}
                   onChange={(e) => setFormMember(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-200"
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200"
                 >
                   {teamMembers.map((m) => (
                     <option key={m.id} value={m.id}>
@@ -329,13 +347,13 @@ export const KanbanBoardView: React.FC<KanbanBoardViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 cursor-pointer font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold cursor-pointer shadow-md shadow-indigo-600/25"
                 >
                   Add Card
                 </button>
@@ -347,3 +365,4 @@ export const KanbanBoardView: React.FC<KanbanBoardViewProps> = ({
     </div>
   );
 };
+

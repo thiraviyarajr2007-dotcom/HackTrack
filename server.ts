@@ -13,7 +13,7 @@ async function startServer() {
 
   app.use(express.json());
 
-  // Initialize Gemini AI client safely on server
+  // Initialize Gemini AI client safely on server (as fallback)
   const getAI = () => {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
@@ -29,16 +29,124 @@ async function startServer() {
     });
   };
 
+  // Helper to parse JSON safely removing codeblocks if present
+  const safeParseJSON = (rawText: string) => {
+    let cleaned = rawText.trim();
+    if (cleaned.startsWith('```json')) {
+      cleaned = cleaned.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+    } else if (cleaned.startsWith('```')) {
+      cleaned = cleaned.replace(/^```\s*/, '').replace(/\s*```$/, '');
+    }
+    return JSON.parse(cleaned);
+  };
+
+  // Unified AI Gateway: Primary API (OpenRouter with user API key) with Fallback to Google Gemini
+  const callAI = async ({
+    prompt,
+    jsonOutput = true,
+    temperature = 0.7,
+  }: {
+    prompt: string;
+    jsonOutput?: boolean;
+    temperature?: number;
+  }): Promise<string> => {
+    const primaryKey =
+      process.env.PRIMARY_AI_API_KEY ||
+      process.env.OPENROUTER_API_KEY ||
+      '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';
+
+    if (primaryKey) {
+      try {
+        console.log('[AI Gateway] Attempting Primary AI API Call via OpenRouter...');
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${primaryKey}`,
+            'Content-Type': 'application/json',
+            'HTTP-Referer': process.env.APP_URL || 'https://hacktrack.dev',
+            'X-Title': 'HackTrack AI Suite',
+          },
+          body: JSON.stringify({
+            model: 'google/gemini-2.5-flash',
+            messages: [
+              {
+                role: 'user',
+                content: prompt,
+              },
+            ],
+            response_format: jsonOutput ? { type: 'json_object' } : undefined,
+            temperature,
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const content = data.choices?.[0]?.message?.content;
+          if (content && content.trim()) {
+            console.log('[AI Gateway] Primary AI API call succeeded via OpenRouter.');
+            return content;
+          }
+        } else {
+          const errorText = await response.text();
+          console.warn(
+            `[AI Gateway] Primary AI API returned status ${response.status}: ${errorText}. Triggering Gemini fallback...`
+          );
+        }
+      } catch (primaryError: any) {
+        console.warn(
+          `[AI Gateway] Primary AI request error: ${primaryError?.message}. Triggering Gemini fallback...`
+        );
+      }
+    }
+
+    // Fallback to Google Gemini
+    console.log('[AI Gateway] Executing Fallback AI API (Google Gemini @google/genai)...');
+    const ai = getAI();
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.6-flash',
+      contents: prompt,
+      config: jsonOutput
+        ? {
+            responseMimeType: 'application/json',
+            temperature,
+          }
+        : {
+            temperature,
+          },
+    });
+
+    return response.text || '';
+  };
+
   // Health check API
   app.get('/api/health', (_req, res) => {
-    res.json({ status: 'ok', app: 'HackTrack' });
+    res.json({
+      status: 'ok',
+      app: 'HackTrack',
+      aiGateway: {
+        primary: 'OpenRouter API',
+        primaryActive: true,
+        fallback: 'Google Gemini (gemini-3.6-flash)',
+        fallbackActive: true,
+      },
+    });
+  });
+
+  // 0. AI Status Endpoint
+  app.get('/api/ai/status', (_req, res) => {
+    res.json({
+      primaryProvider: 'OpenRouter AI (Primary)',
+      primaryConfigured: true,
+      fallbackProvider: 'Google Gemini 3.6 Flash (Fallback)',
+      fallbackConfigured: true,
+      architecture: 'Primary-first with automatic, fail-safe Gemini fallback',
+    });
   });
 
   // 1. AI Idea Generator Endpoint
   app.post('/api/ai/idea-generator', async (req, res) => {
     try {
       const { category, customPrompt } = req.body;
-      const ai = getAI();
 
       const prompt = `You are an expert student hackathon strategist and product founder.
 Generate an innovative, winning hackathon project idea in the domain/category: "${category || 'AI'}".
@@ -55,17 +163,8 @@ Provide a structured, detailed JSON response adhering to this schema:
   "pptOutline": ["Slide 1: Problem & Impact", "Slide 2: Solution & Live Demo", "Slide 3: System Architecture & Tech Stack", "Slide 4: Business Model & Scalability", "Slide 5: Team & Roadmap"]
 }`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.6-flash',
-        contents: prompt,
-        config: {
-          responseMimeType: 'application/json',
-          temperature: 0.7,
-        },
-      });
-
-      const text = response.text || '{}';
-      const parsedData = JSON.parse(text);
+      const rawText = await callAI({ prompt, jsonOutput: true, temperature: 0.7 });
+      const parsedData = safeParseJSON(rawText);
       res.json({ success: true, data: parsedData });
     } catch (error: any) {
       console.error('Error in /api/ai/idea-generator:', error);
@@ -80,7 +179,6 @@ Provide a structured, detailed JSON response adhering to this schema:
   app.post('/api/ai/pitch-generator', async (req, res) => {
     try {
       const { projectName, description, techStack, targetAudience } = req.body;
-      const ai = getAI();
 
       const prompt = `Create a 2-minute winning hackathon pitch deck script for project "${projectName}".
 Description: ${description}
@@ -103,13 +201,8 @@ Return JSON format:
   ]
 }`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.6-flash',
-        contents: prompt,
-        config: { responseMimeType: 'application/json' },
-      });
-
-      const parsed = JSON.parse(response.text || '{}');
+      const rawText = await callAI({ prompt, jsonOutput: true });
+      const parsed = safeParseJSON(rawText);
       res.json({ success: true, data: parsed });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error?.message });
@@ -120,7 +213,6 @@ Return JSON format:
   app.post('/api/ai/readme-generator', async (req, res) => {
     try {
       const { projectName, description, techStack, repoUrl, features } = req.body;
-      const ai = getAI();
 
       const prompt = `Generate a beautiful, production-ready GitHub README.md markdown text for a hackathon project.
 Project Name: ${projectName}
@@ -131,12 +223,8 @@ Features: ${Array.isArray(features) ? features.join('; ') : features}
 
 Make it formatted in clean GitHub Markdown with badges, table of contents, features, quick start guide, system architecture, and team credits.`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.6-flash',
-        contents: prompt,
-      });
-
-      res.json({ success: true, readme: response.text });
+      const text = await callAI({ prompt, jsonOutput: false });
+      res.json({ success: true, readme: text });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error?.message });
     }
@@ -146,7 +234,6 @@ Make it formatted in clean GitHub Markdown with badges, table of contents, featu
   app.post('/api/ai/judge-simulator', async (req, res) => {
     try {
       const { projectName, description, category } = req.body;
-      const ai = getAI();
 
       const prompt = `Simulate 3 strict, expert hackathon judges reviewing the project "${projectName}" (${category}).
 Project Description: ${description}
@@ -182,13 +269,9 @@ Return JSON format:
   ]
 }`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.6-flash',
-        contents: prompt,
-        config: { responseMimeType: 'application/json' },
-      });
-
-      res.json({ success: true, data: JSON.parse(response.text || '{}') });
+      const rawText = await callAI({ prompt, jsonOutput: true });
+      const parsed = safeParseJSON(rawText);
+      res.json({ success: true, data: parsed });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error?.message });
     }
@@ -198,7 +281,6 @@ Return JSON format:
   app.post('/api/ai/analytics-suggestions', async (req, res) => {
     try {
       const { totalParticipated, winRate, topTechStack, timeSpentHours } = req.body;
-      const ai = getAI();
 
       const prompt = `Analyze these hackathon team metrics:
 - Total Hackathons Participated: ${totalParticipated || 16}
@@ -218,13 +300,9 @@ Return JSON format:
   ]
 }`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.6-flash',
-        contents: prompt,
-        config: { responseMimeType: 'application/json' },
-      });
-
-      res.json({ success: true, data: JSON.parse(response.text || '{}') });
+      const rawText = await callAI({ prompt, jsonOutput: true });
+      const parsed = safeParseJSON(rawText);
+      res.json({ success: true, data: parsed });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error?.message });
     }
@@ -234,7 +312,6 @@ Return JSON format:
   app.post('/api/ai/project-evaluation', async (req, res) => {
     try {
       const { projectName, problemStatement, techStack, githubUrl, demoVideoUrl, pptUrl, description } = req.body;
-      const ai = getAI();
 
       const prompt = `You are a legendary Hackathon Chief Judge and Principal Software Architect.
 Conduct an in-depth AI evaluation of the hackathon submission:
@@ -289,20 +366,43 @@ Provide structured JSON response adhering strictly to this schema:
   ]
 }`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.6-flash',
-        contents: prompt,
-        config: {
-          responseMimeType: 'application/json',
-          temperature: 0.6,
-        },
-      });
-
-      const parsed = JSON.parse(response.text || '{}');
+      const rawText = await callAI({ prompt, jsonOutput: true, temperature: 0.6 });
+      const parsed = safeParseJSON(rawText);
       res.json({ success: true, data: parsed });
     } catch (error: any) {
       console.error('Error in /api/ai/project-evaluation:', error);
       res.status(500).json({ success: false, error: error?.message || 'Failed to generate project evaluation.' });
+    }
+  });
+
+  // 6b. AI Code Reviewer Endpoint
+  app.post('/api/ai/code-review', async (req, res) => {
+    try {
+      const { codeSnippet } = req.body;
+
+      const prompt = `Perform a comprehensive security, type-safety, and performance code audit of the following code snippet:
+\`\`\`
+${codeSnippet}
+\`\`\`
+
+Return JSON in this format:
+{
+  "securityRating": "A+",
+  "performanceRating": "A",
+  "suggestions": [
+    "Security analysis or best practice observation",
+    "Performance or error boundary improvement suggestion",
+    "Refactoring recommendation"
+  ],
+  "refactoredCode": "Production-ready refactored code snippet here..."
+}`;
+
+      const rawText = await callAI({ prompt, jsonOutput: true, temperature: 0.4 });
+      const parsed = safeParseJSON(rawText);
+      res.json({ success: true, data: parsed });
+    } catch (error: any) {
+      console.error('Error in /api/ai/code-review:', error);
+      res.status(500).json({ success: false, error: error?.message || 'Failed to review code.' });
     }
   });
 

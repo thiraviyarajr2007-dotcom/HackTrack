@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'motion/react';
 import {
   Users,
   Plus,
@@ -94,7 +95,6 @@ export const TeamWorkspaceView: React.FC<TeamWorkspaceViewProps> = ({
     e.preventDefault();
     if (!joinCodeInput.trim()) return;
 
-    // Check code validity (e.g. HT- prefix or matches generated)
     if (joinCodeInput.trim().toUpperCase().startsWith('HT-') || joinCodeInput.trim() === generatedInviteCode) {
       const newMember: TeamMember = {
         id: `m_${Date.now()}`,
@@ -185,34 +185,35 @@ export const TeamWorkspaceView: React.FC<TeamWorkspaceViewProps> = ({
   };
 
   return (
-    <div className="space-y-4 text-[#fafafa] font-sans pb-12">
+    <div className="space-y-6 text-[#fafafa] font-sans pb-12">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#27272a] pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
         <div>
-          <div className="flex items-center gap-2">
-            <Users className="w-5 h-5 text-purple-400" />
-            <h1 className="text-lg md:text-xl font-bold tracking-tight text-[#fafafa]">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+              <Users className="w-4 h-4" />
+            </div>
+            <h1 className="text-xl md:text-2xl font-heading font-black tracking-tight text-white">
               Team Workspace & Permissions
             </h1>
           </div>
-          <p className="text-xs text-[#71717a] mt-0.5">
-            Role definitions, invite code generation, member task pacing, and collaboration metrics.
+          <p className="text-xs text-slate-400 mt-1">
+            Manage team roles, invite links, task assignments, and permission controls.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto">
-          <span className="text-[10px] text-[#71717a] font-mono">Your Role:</span>
-          <span className="px-2 py-0.5 text-xs font-mono font-bold rounded bg-purple-500/10 text-purple-300 border border-purple-500/20 flex items-center gap-1">
-            <Crown className="w-3 h-3" />
+        <div className="flex items-center gap-2.5 self-start sm:self-auto flex-wrap">
+          <span className="text-xs text-slate-400 font-mono">Role:</span>
+          <span className="px-2.5 py-1 text-xs font-mono font-bold rounded-xl bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 flex items-center gap-1.5">
+            <Crown className="w-3.5 h-3.5 text-indigo-400" />
             {currentUserRole}
           </span>
 
           <button
             onClick={() => setShowPermissionsModal(true)}
-            className="px-3 py-1.5 text-xs font-bold rounded bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
-            title="Open Permissions Manager"
+            className="px-3.5 py-2 text-xs font-bold rounded-xl bg-slate-900 hover:bg-slate-800 text-indigo-300 border border-slate-800 hover:border-indigo-500/30 flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
           >
-            <ShieldCheck className="w-3.5 h-3.5 text-purple-400" />
+            <ShieldCheck className="w-3.5 h-3.5 text-indigo-400" />
             <span>Permissions Manager</span>
           </button>
 
@@ -221,7 +222,7 @@ export const TeamWorkspaceView: React.FC<TeamWorkspaceViewProps> = ({
               resetForm();
               setShowAddModal(true);
             }}
-            className="px-3 py-1.5 text-xs font-bold rounded bg-blue-600 hover:bg-blue-500 text-white flex items-center gap-1.5 shadow-[0_0_10px_rgba(59,130,246,0.3)] transition-all cursor-pointer"
+            className="px-4 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white flex items-center gap-1.5 shadow-lg shadow-indigo-600/25 transition-all cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Member</span>
@@ -230,105 +231,105 @@ export const TeamWorkspaceView: React.FC<TeamWorkspaceViewProps> = ({
       </div>
 
       {/* Role Permissions Matrix Card */}
-      <div className="bg-[#18181b] border border-[#27272a] rounded-lg p-4 space-y-3">
-        <div className="flex items-center justify-between border-b border-[#27272a] pb-2">
-          <span className="text-xs font-bold uppercase text-[#71717a] tracking-wider flex items-center gap-1.5">
-            <Shield className="w-3.5 h-3.5 text-purple-400" /> HackTrack Role & Permissions Hierarchy
+      <div className="glass-card rounded-[20px] p-5 space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+          <span className="text-xs font-heading font-bold uppercase text-slate-400 tracking-wider flex items-center gap-2">
+            <Shield className="w-4 h-4 text-indigo-400" /> HackTrack Role & Permissions Hierarchy
           </span>
           <button
             onClick={() => setShowPermissionsModal(true)}
-            className="text-[10px] text-purple-400 hover:text-purple-300 font-mono underline flex items-center gap-1 cursor-pointer"
+            className="text-xs text-indigo-400 hover:text-indigo-300 font-mono flex items-center gap-1 cursor-pointer"
           >
-            <ShieldCheck className="w-3 h-3" />
-            <span>Configure Permissions & Firestore Rules</span>
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Configure Permissions & Rules</span>
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
           {/* Team Leader */}
-          <div className="p-3 rounded bg-[#09090b] border border-[#27272a] space-y-1.5">
-            <div className="flex items-center gap-1.5 text-purple-300 font-bold">
-              <Crown className="w-4 h-4 text-purple-400" />
+          <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800/80 space-y-2">
+            <div className="flex items-center gap-2 text-indigo-300 font-bold font-heading">
+              <Crown className="w-4 h-4 text-indigo-400" />
               <span>Team Leader</span>
             </div>
-            <p className="text-[11px] text-[#a1a1aa] leading-relaxed">
-              Full administrative control over project lifecycle.
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              Full administrative control over project lifecycle and settings.
             </p>
-            <ul className="text-[10px] text-[#71717a] space-y-1 pt-1 border-t border-[#27272a]">
-              <li className="flex items-center gap-1 text-emerald-400">✓ Assign & reassign tasks to members</li>
-              <li className="flex items-center gap-1 text-emerald-400">✓ Manage hackathon settings & deadlines</li>
-              <li className="flex items-center gap-1 text-emerald-400">✓ Generate & manage invite codes</li>
-              <li className="flex items-center gap-1 text-emerald-400">✓ Submit final project builds</li>
+            <ul className="text-[11px] text-slate-400 space-y-1.5 pt-2 border-t border-slate-800/80">
+              <li className="flex items-center gap-1.5 text-emerald-400">✓ Assign & reassign tasks to members</li>
+              <li className="flex items-center gap-1.5 text-emerald-400">✓ Manage hackathon settings & deadlines</li>
+              <li className="flex items-center gap-1.5 text-emerald-400">✓ Generate & manage invite codes</li>
+              <li className="flex items-center gap-1.5 text-emerald-400">✓ Submit final project builds</li>
             </ul>
           </div>
 
           {/* Member */}
-          <div className="p-3 rounded bg-[#09090b] border border-[#27272a] space-y-1.5">
-            <div className="flex items-center gap-1.5 text-blue-300 font-bold">
+          <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800/80 space-y-2">
+            <div className="flex items-center gap-2 text-blue-300 font-bold font-heading">
               <UserCheck className="w-4 h-4 text-blue-400" />
               <span>Team Member</span>
             </div>
-            <p className="text-[11px] text-[#a1a1aa] leading-relaxed">
-              Execution and active project development.
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              Active project developer and design contributor.
             </p>
-            <ul className="text-[10px] text-[#71717a] space-y-1 pt-1 border-t border-[#27272a]">
-              <li className="flex items-center gap-1 text-emerald-400">✓ Create & update task statuses</li>
-              <li className="flex items-center gap-1 text-emerald-400">✓ Drag Kanban cards across progress columns</li>
-              <li className="flex items-center gap-1 text-emerald-400">✓ Upload PPT, APK, Code & Files</li>
-              <li className="flex items-center gap-1 text-emerald-400">✓ Submit daily standups & notes</li>
+            <ul className="text-[11px] text-slate-400 space-y-1.5 pt-2 border-t border-slate-800/80">
+              <li className="flex items-center gap-1.5 text-emerald-400">✓ Create & update task statuses</li>
+              <li className="flex items-center gap-1.5 text-emerald-400">✓ Drag Kanban cards across workflow</li>
+              <li className="flex items-center gap-1.5 text-emerald-400">✓ Upload PPT, APK, Code & Files</li>
+              <li className="flex items-center gap-1.5 text-emerald-400">✓ Submit daily standups & notes</li>
             </ul>
           </div>
 
           {/* Mentor */}
-          <div className="p-3 rounded bg-[#09090b] border border-[#27272a] space-y-1.5">
-            <div className="flex items-center gap-1.5 text-amber-300 font-bold">
+          <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800/80 space-y-2">
+            <div className="flex items-center gap-2 text-amber-300 font-bold font-heading">
               <GraduationCap className="w-4 h-4 text-amber-400" />
               <span>Mentor</span>
             </div>
-            <p className="text-[11px] text-[#a1a1aa] leading-relaxed">
+            <p className="text-[11px] text-slate-400 leading-relaxed">
               Guidance, code reviews, and strategic evaluation.
             </p>
-            <ul className="text-[10px] text-[#71717a] space-y-1 pt-1 border-t border-[#27272a]">
-              <li className="flex items-center gap-1 text-emerald-400">✓ View project details & Kanban roadmap</li>
-              <li className="flex items-center gap-1 text-emerald-400">✓ Run AI Rubric project evaluations</li>
-              <li className="flex items-center gap-1 text-emerald-400">✓ Leave mentor feedback & guidance notes</li>
-              <li className="flex items-center gap-1 text-amber-400">⚠ Read-only task editing access</li>
+            <ul className="text-[11px] text-slate-400 space-y-1.5 pt-2 border-t border-slate-800/80">
+              <li className="flex items-center gap-1.5 text-emerald-400">✓ View project details & Kanban roadmap</li>
+              <li className="flex items-center gap-1.5 text-emerald-400">✓ Run AI Rubric project evaluations</li>
+              <li className="flex items-center gap-1.5 text-emerald-400">✓ Leave mentor feedback & guidance notes</li>
+              <li className="flex items-center gap-1.5 text-amber-400">⚠ Read-only task editing access</li>
             </ul>
           </div>
         </div>
       </div>
 
-      {/* Join Team & Invite Code Section (Algorithm #3) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+      {/* Join Team & Invite Code Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
         {/* Leader Invite Code Generation */}
-        <div className="bg-[#18181b] border border-[#27272a] rounded-lg p-4 space-y-3">
-          <div className="flex items-center justify-between border-b border-[#27272a] pb-2">
-            <span className="font-bold text-[#fafafa] flex items-center gap-1.5">
-              <Key className="w-3.5 h-3.5 text-blue-400" /> Invite Code Generator (Team Leader)
+        <div className="glass-card rounded-[20px] p-5 space-y-3.5">
+          <div className="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
+            <span className="font-bold text-slate-100 flex items-center gap-2 font-heading">
+              <Key className="w-4 h-4 text-indigo-400" /> Invite Code Generator
             </span>
-            <span className="text-[10px] text-[#71717a]">Algorithm #3</span>
+            <span className="text-[10px] text-indigo-400 font-mono">Team Leader Tool</span>
           </div>
 
-          <p className="text-[#a1a1aa]">
-            Leaders can generate shareable 6-digit codes to invite members to the hackathon project team.
+          <p className="text-slate-400 text-xs">
+            Generate a unique code to invite teammates directly to your hackathon workspace.
           </p>
 
           <div className="flex items-center gap-2">
-            <div className="flex-1 px-3 py-1.5 bg-[#09090b] border border-[#27272a] rounded font-mono font-bold text-center text-blue-400 tracking-wider">
+            <div className="flex-1 px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-xl font-mono font-bold text-center text-indigo-400 tracking-wider">
               {generatedInviteCode}
             </div>
 
             <button
               onClick={handleCopyCode}
-              className="px-3 py-1.5 bg-[#27272a] hover:bg-[#3f3f46] text-[#fafafa] font-bold rounded flex items-center gap-1 cursor-pointer"
+              className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl flex items-center gap-1.5 cursor-pointer transition-colors"
             >
               {copiedCode ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copiedCode ? 'Copied' : 'Copy Code'}</span>
+              <span>{copiedCode ? 'Copied' : 'Copy'}</span>
             </button>
 
             <button
               onClick={handleGenerateCode}
-              className="px-2.5 py-1.5 bg-[#09090b] hover:bg-[#27272a] border border-[#27272a] text-[#a1a1aa] hover:text-[#fafafa] font-mono rounded cursor-pointer"
+              className="px-3 py-2 bg-slate-950 border border-slate-800 text-slate-300 hover:text-white font-mono rounded-xl cursor-pointer transition-colors"
               title="Generate New Code"
             >
               ↻
@@ -337,40 +338,40 @@ export const TeamWorkspaceView: React.FC<TeamWorkspaceViewProps> = ({
         </div>
 
         {/* Member Join Code Entry */}
-        <div className="bg-[#18181b] border border-[#27272a] rounded-lg p-4 space-y-3">
-          <div className="flex items-center justify-between border-b border-[#27272a] pb-2">
-            <span className="font-bold text-[#fafafa] flex items-center gap-1.5">
-              <UserPlus className="w-3.5 h-3.5 text-purple-400" /> Join Team via Invite Code
+        <div className="glass-card rounded-[20px] p-5 space-y-3.5">
+          <div className="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
+            <span className="font-bold text-slate-100 flex items-center gap-2 font-heading">
+              <UserPlus className="w-4 h-4 text-indigo-400" /> Join Team via Code
             </span>
-            <span className="text-[10px] text-[#71717a]">Member Onboarding</span>
+            <span className="text-[10px] text-slate-400 font-mono">Member Onboarding</span>
           </div>
 
-          <p className="text-[#a1a1aa]">
-            Have an invite code from your leader? Enter it below to join the hackathon workspace instantly.
+          <p className="text-slate-400 text-xs">
+            Have an invite code from your Team Leader? Enter it below to join this workspace.
           </p>
 
           <form onSubmit={handleJoinByCode} className="flex items-center gap-2">
             <input
               type="text"
-              placeholder="Enter Code e.g. HT-2026-X99Z"
+              placeholder="e.g. HT-2026-X99Z"
               value={joinCodeInput}
               onChange={(e) => setJoinCodeInput(e.target.value)}
-              className="flex-1 px-2.5 py-1.5 bg-[#09090b] border border-[#27272a] rounded text-[#fafafa] font-mono uppercase focus:outline-none focus:border-purple-500"
+              className="flex-1 px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-xl text-white font-mono uppercase focus:outline-none focus:border-indigo-500"
             />
             <button
               type="submit"
-              className="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded cursor-pointer"
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl cursor-pointer transition-colors"
             >
-              Join Workspace
+              Join
             </button>
           </form>
 
           {joinStatusMsg && (
             <div
-              className={`p-2 rounded text-[11px] font-mono border ${
+              className={`p-2.5 rounded-xl text-[11px] font-mono border ${
                 joinStatusMsg.type === 'success'
                   ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                  : 'bg-red-500/10 text-red-400 border-red-500/20'
+                  : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
               }`}
             >
               {joinStatusMsg.text}
@@ -380,29 +381,30 @@ export const TeamWorkspaceView: React.FC<TeamWorkspaceViewProps> = ({
       </div>
 
       {/* Team Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {teamMembers.map((member) => (
-          <div
+          <motion.div
             key={member.id}
-            className="bg-[#18181b] border border-[#27272a] hover:border-blue-500/40 rounded-lg p-3.5 flex flex-col justify-between transition-colors group"
+            whileHover={{ y: -3 }}
+            className="glass-card rounded-[20px] p-4 flex flex-col justify-between transition-all group"
           >
             <div>
               {/* Avatar & Role Badge */}
-              <div className="flex items-start justify-between mb-2.5">
+              <div className="flex items-start justify-between mb-3">
                 <div className="relative">
                   <img
                     src={member.avatar}
                     alt={member.name}
-                    className="w-10 h-10 rounded-full object-cover border border-[#27272a]"
+                    className="w-11 h-11 rounded-2xl object-cover border border-slate-700/80 shadow-md"
                   />
-                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[#18181b]" />
+                  <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-400 border-2 border-slate-950" />
                 </div>
 
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1.5">
                   <span
-                    className={`px-2 py-0.5 text-[10px] font-mono font-bold rounded border ${
+                    className={`px-2.5 py-1 text-[10px] font-mono font-bold rounded-xl border ${
                       member.role === 'Team Leader'
-                        ? 'bg-purple-500/10 text-purple-300 border-purple-500/20'
+                        ? 'bg-indigo-500/10 text-indigo-300 border-indigo-500/20'
                         : member.role === 'Mentor'
                         ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
                         : 'bg-blue-500/10 text-blue-300 border-blue-500/20'
@@ -413,7 +415,7 @@ export const TeamWorkspaceView: React.FC<TeamWorkspaceViewProps> = ({
 
                   <button
                     onClick={() => openEdit(member)}
-                    className="p-1 rounded bg-[#09090b] text-[#a1a1aa] hover:text-[#fafafa] cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="p-1.5 rounded-lg bg-slate-800/80 text-slate-400 hover:text-white cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
                     title="Edit Member"
                   >
                     <Edit2 className="w-3 h-3" />
@@ -422,23 +424,23 @@ export const TeamWorkspaceView: React.FC<TeamWorkspaceViewProps> = ({
               </div>
 
               {/* Name & Specialty */}
-              <h3 className="text-xs font-bold text-[#fafafa]">{member.name}</h3>
-              <p className="text-[11px] text-blue-400 font-medium mb-1.5">{member.specialty}</p>
-              <p className="text-[11px] text-[#a1a1aa] mb-2.5 line-clamp-2 leading-tight">{member.bio}</p>
+              <h3 className="text-sm font-bold text-white font-heading">{member.name}</h3>
+              <p className="text-xs text-indigo-400 font-medium mb-1.5">{member.specialty}</p>
+              <p className="text-xs text-slate-400 mb-3 line-clamp-2 leading-relaxed">{member.bio}</p>
 
               {/* Task Metrics */}
-              <div className="p-2 rounded bg-[#09090b] border border-[#27272a] space-y-1.5 mb-2.5 text-[11px]">
-                <div className="flex justify-between items-center text-[#a1a1aa]">
+              <div className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800/80 space-y-2 mb-3 text-xs">
+                <div className="flex justify-between items-center text-slate-400">
                   <span>Assigned Tasks:</span>
-                  <strong className="text-[#fafafa] font-mono">{member.assignedTaskCount}</strong>
+                  <strong className="text-white font-mono">{member.assignedTaskCount}</strong>
                 </div>
 
                 <div>
-                  <div className="flex justify-between text-[#71717a] text-[10px] mb-0.5">
+                  <div className="flex justify-between text-slate-400 text-[10px] mb-1">
                     <span>Task Completion:</span>
                     <strong className="text-emerald-400 font-mono">{member.completionPercentage}%</strong>
                   </div>
-                  <div className="w-full h-1 bg-[#27272a] rounded-full overflow-hidden">
+                  <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-emerald-500 rounded-full"
                       style={{ width: `${member.completionPercentage}%` }}
@@ -449,58 +451,58 @@ export const TeamWorkspaceView: React.FC<TeamWorkspaceViewProps> = ({
             </div>
 
             {/* Email & Activity */}
-            <div className="pt-2 border-t border-[#27272a] flex items-center justify-between text-[10px] text-[#71717a]">
+            <div className="pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
               <span className="flex items-center gap-1 truncate max-w-[130px]">
-                <Mail className="w-3 h-3 text-[#52525b]" />
+                <Mail className="w-3.5 h-3.5 text-slate-500" />
                 <span className="truncate">{member.email}</span>
               </span>
-              <span className="font-mono text-[#52525b]">{member.lastActive}</span>
+              <span className="font-mono text-slate-500">{member.lastActive}</span>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
 
       {/* Modal Form */}
       {showAddModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150 cursor-pointer"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-150 cursor-pointer"
           onClick={() => setShowAddModal(false)}
         >
           <div
-            className="bg-[#18181b] border border-[#27272a] rounded-lg w-full max-w-md p-5 shadow-2xl relative text-xs cursor-default"
+            className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-6 shadow-2xl relative text-xs cursor-default space-y-4"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={() => setShowAddModal(false)}
-              className="absolute top-4 right-4 p-1 text-[#71717a] hover:text-[#fafafa]"
+              className="absolute top-4 right-4 p-1.5 rounded-xl bg-slate-800 text-slate-400 hover:text-white"
             >
               <X className="w-4 h-4" />
             </button>
 
-            <h2 className="text-sm font-bold text-[#fafafa] mb-3">
+            <h2 className="text-base font-bold text-white font-heading">
               {editingMember ? 'Edit Team Member Profile' : 'Add Team Member'}
             </h2>
 
-            <form onSubmit={handleSaveMember} className="space-y-3">
+            <form onSubmit={handleSaveMember} className="space-y-3.5">
               <div>
-                <label className="block text-[#a1a1aa] mb-1 font-medium">Full Name *</label>
+                <label className="block text-slate-400 mb-1 font-medium">Full Name *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Ananya Patel"
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-[#09090b] border border-[#27272a] rounded text-[#fafafa] focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-indigo-500"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[#a1a1aa] mb-1 font-medium">Role</label>
+                  <label className="block text-slate-400 mb-1 font-medium">Role</label>
                   <select
                     value={formRole}
                     onChange={(e) => setFormRole(e.target.value as UserRole)}
-                    className="w-full px-2.5 py-1.5 bg-[#09090b] border border-[#27272a] rounded text-[#fafafa] focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-indigo-500"
                   >
                     <option value="Team Leader">Team Leader</option>
                     <option value="Member">Member</option>
@@ -509,36 +511,36 @@ export const TeamWorkspaceView: React.FC<TeamWorkspaceViewProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-[#a1a1aa] mb-1 font-medium">Specialty</label>
+                  <label className="block text-slate-400 mb-1 font-medium">Specialty</label>
                   <input
                     type="text"
                     placeholder="e.g. Full Stack / UI Lead"
                     value={formSpecialty}
                     onChange={(e) => setFormSpecialty(e.target.value)}
-                    className="w-full px-2.5 py-1.5 bg-[#09090b] border border-[#27272a] rounded text-[#fafafa] focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-indigo-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[#a1a1aa] mb-1 font-medium">Email Address</label>
+                <label className="block text-slate-400 mb-1 font-medium">Email Address</label>
                 <input
                   type="email"
                   placeholder="ananya@hacktrack.io"
                   value={formEmail}
                   onChange={(e) => setFormEmail(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-[#09090b] border border-[#27272a] rounded text-[#fafafa] focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-indigo-500"
                 />
               </div>
 
               <div>
-                <label className="block text-[#a1a1aa] mb-1 font-medium">Short Bio</label>
+                <label className="block text-slate-400 mb-1 font-medium">Short Bio</label>
                 <textarea
                   rows={2}
                   placeholder="Member technical focus and contributions..."
                   value={formBio}
                   onChange={(e) => setFormBio(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-[#09090b] border border-[#27272a] rounded text-[#fafafa] focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-indigo-500"
                 />
               </div>
 
@@ -546,17 +548,17 @@ export const TeamWorkspaceView: React.FC<TeamWorkspaceViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-3 py-1.5 rounded bg-[#27272a] text-[#fafafa] hover:bg-[#3f3f46] cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 cursor-pointer font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSavingMember}
-                  className="px-3.5 py-1.5 rounded bg-blue-600 text-white font-bold hover:bg-blue-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 transition-all"
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold hover:from-indigo-500 hover:to-violet-500 cursor-pointer disabled:opacity-50 flex items-center gap-2 shadow-md shadow-indigo-600/25"
                 >
-                  {isSavingMember && <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-200" />}
-                  <span>{isSavingMember ? 'Saving...' : 'Save Member Profile'}</span>
+                  {isSavingMember && <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />}
+                  <span>{isSavingMember ? 'Saving...' : 'Save Profile'}</span>
                 </button>
               </div>
             </form>
@@ -579,3 +581,4 @@ export const TeamWorkspaceView: React.FC<TeamWorkspaceViewProps> = ({
     </div>
   );
 };
+
