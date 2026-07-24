@@ -1,0 +1,74 @@
+{
+  "entities": {
+    "Workspace": {
+      "title": "User Workspace",
+      "description": "Stores user hackathons, tasks, team members, notes, and activity data.",
+      "type": "object",
+      "properties": {
+        "ownerUid": {
+          "type": "string",
+          "description": "Unique Firebase Auth User ID of the workspace owner."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp of last update."
+        },
+        "hackathons": {
+          "type": "array",
+          "description": "List of hackathons created by the user."
+        },
+        "kanbanTasks": {
+          "type": "array",
+          "description": "List of Kanban tasks."
+        },
+        "teamMembers": {
+          "type": "array",
+          "description": "List of team workspace members."
+        },
+        "documents": {
+          "type": "array",
+          "description": "Uploaded or created document center files."
+        },
+        "milestones": {
+          "type": "array",
+          "description": "Timeline milestones and phases."
+        },
+        "standups": {
+          "type": "array",
+          "description": "Daily standup entries."
+        },
+        "deadlines": {
+          "type": "array",
+          "description": "Deadline countdown timers."
+        },
+        "notes": {
+          "type": "array",
+          "description": "Notes and brainstorming ideas."
+        },
+        "resources": {
+          "type": "array",
+          "description": "Resource library items."
+        },
+        "expenses": {
+          "type": "array",
+          "description": "Budget and expense tracker items."
+        },
+        "achievements": {
+          "type": "array",
+          "description": "Achievements and badges earned."
+        },
+        "notifications": {
+          "type": "array",
+          "description": "System and workspace notifications."
+        }
+      },
+      "required": ["ownerUid"]
+    }
+  },
+  "firestore": {
+    "/workspaces/{userId}": {
+      "schema": "Workspace",
+      "description": "Collection of user workspaces accessible by workspace owner."
+    }
+  }
+}

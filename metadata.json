@@ -1,0 +1,6 @@
+{
+  "name": "HackTrack",
+  "description": "All-in-one Hackathon management dashboard & AI assistant for student developer teams.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
